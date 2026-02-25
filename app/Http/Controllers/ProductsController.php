@@ -33,7 +33,7 @@ class ProductsController extends Controller
             'user_id' => auth()->id,
             'affected_module' => 'Product',
             'action_performed' => 'delete',
-            'detail' => 'Se eliminó el producto {$product->name}'
+            'detail' => "Se eliminó el producto {$product->name}"
         ]);
 
         return $this->response(

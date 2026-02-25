@@ -14,37 +14,45 @@ class InventoryAdjustmentController extends Controller
 {
     use ApiResponse;
 
-    public function alter(InventoryMovement $request)
+    public function alter(Request $request)
     {
         $product = Product::findOrFail($request->product_id);
 
         $productStock = $product->stock;
 
         if($request->reason === 'income'){
-            $newAdjustmen = $productStock + $request->amount;
+            $newAdjustment = $productStock + $request->amount;
         }
         
         if($request->reason === 'output'){
             if($request->amount > $productStock){
                 return $this->response(false, "Stock insuficiente", null, "El stock es menor a la cantidad", 422);
             }
-            $newAdjustmen = $productStock - $request->amount;
+            $newAdjustment = $productStock - $request->amount;
         }
         
         if($request->reason === 'adjustment'){
-            $newAdjustmen = $request->amount;
+            $newAdjustment = $request->amount;
         }
 
-        $product->stock = $newAdjustmen;
+        $product->stock = $newAdjustment;
         $product->save();
+
+        InventoryMovement::create([
+            'product_id' => $product->id,
+            'reason' => $request->reason,
+            'amount' => $request->amount,
+            'date_time' => $request->date_time,
+            'user_id' => auth()->id
+        ]);
 
         Audit::create([
             'user_id' => auth()->id,
             'affected_module' => 'Product',
             'action_performed' => 'update',
-            'detail' => 'Se actualizó un producto {$product->name}'
+            'detail' => "Se actualizó un producto {$product->name}"
         ]);
 
-        return $this->response(true, "Cambio en stock", $product, "Hubo un cambio en el inventario y stock del producto", 200);
+        return $this->response(true, "Hubo un cambio en el inventario y stock del producto", $product, null, 200);
     }
 }
