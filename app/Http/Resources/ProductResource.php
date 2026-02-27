@@ -23,7 +23,9 @@ class ProductResource extends JsonResource
             'location' => $this->location,
             'stock' => $this->stock,
             'image_url' => $this->image ? asset('storage/' . $this->image) : null,
-        
+            'expiration_date' => $this->productReceptions()
+                ->where('expiration_date', '>=', now())
+                ->min('expiration_date'),
         ];
     }
 }

@@ -132,7 +132,7 @@ class ProductController extends Controller
         $products = Product::where('codigo', 'LIKE', "%$query%")
             ->orWhere('name', 'LIKE', "%$query%")
             ->orWhere('description', 'LIKE', "%$query%")
-            ->with(['category', 'supplier'])
+            ->with(['productReceptions'])
             ->get();
 
         return $this->response(

@@ -9,7 +9,7 @@ class ProductReception extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'product_reception';
+    protected $table = 'product_receptions';
     
     protected $fillable = [
     'batch_id',
