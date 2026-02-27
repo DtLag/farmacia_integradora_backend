@@ -15,3 +15,5 @@ Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
 
 Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
+
+Route::get('/products/search', [ProductController::class, 'search']);

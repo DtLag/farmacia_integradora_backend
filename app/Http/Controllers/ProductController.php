@@ -122,4 +122,25 @@ class ProductController extends Controller
             return $this->response(false, 'Error al actualizar producto: ' , null, $e->getMessage(), 500);
         }
     }
+    
+    /**
+     * CU-08: Buscar Producto 
+     */
+    public function search(Request $request) {
+        $query = $request->input('query');
+
+        $products = Product::where('codigo', 'LIKE', "%$query%")
+            ->orWhere('name', 'LIKE', "%$query%")
+            ->orWhere('description', 'LIKE', "%$query%")
+            ->with(['category', 'supplier'])
+            ->get();
+
+        return $this->response(
+            true, 
+            'Resultados de búsqueda', 
+            ProductResource::collection($products), 
+            null, 
+            200
+        );
+    }
 }
