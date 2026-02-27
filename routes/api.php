@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\BatchController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 
@@ -32,3 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 });
+
+Route::post('/products', [ProductController::class, 'registerProduct']);
+Route::patch('/products/{id}', [ProductController::class, 'update']);
+
+Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
+
+Route::get('/products/search', [ProductController::class, 'search']);
+Route::post('/sales', [SaleController::class, 'store']);
+Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
