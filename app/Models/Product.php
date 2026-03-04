@@ -22,9 +22,37 @@ class Product extends Model
         'max_stock',
         'description',
         'image',
-        'supplier_id',
-        'category_id'
+        'category_id',
+        'supplier_id'
     ];
+
+    public function saleDetails()
+    {
+        return $this->hasMany(SaleDetail::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(PickUpReservation::class);
+    }
+
+    public function pendingSales()
+    {
+        return $this->saleDetails()->whereHas('sale', function ($query) {
+            $query->where('state', 'in progress');
+        })->exists();
+    }
+
+    public function reservedProduct()
+    {
+        return $this->reservations()->where('state', 'pending')->exists();
+    }
+
+    public function inventorieMovements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
     public function category() 
     {
         return $this->belongsTo(Category::class);
@@ -33,6 +61,11 @@ class Product extends Model
     public function supplier() 
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function productReceptions()

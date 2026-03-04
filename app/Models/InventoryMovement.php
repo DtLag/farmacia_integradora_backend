@@ -10,7 +10,17 @@ class InventoryMovement extends Model
         'product_id',
         'reason',
         'amount',
-        'data_time',
-        'user_id',
+        'date_time',
+        'user_id'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
