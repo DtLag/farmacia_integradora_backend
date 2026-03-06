@@ -49,9 +49,14 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    //Crear pedido pick-up
     Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
 });
+
+Route::get('/pickup/orders/pending', [PickUpController::class, 'indexPending']);
+
+Route::patch('/pickup/orders/{id}/start', [PickUpController::class, 'startPreparation']);
+
+Route::patch('/pickup/orders/{id}/finish', [PickUpController::class, 'finishPreparation']);
 
 Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
