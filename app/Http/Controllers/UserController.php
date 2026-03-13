@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -40,7 +41,7 @@ class UserController extends Controller
     }
 
     // Actualizar un usuario
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
         if ($request->user()->role !== 'admin') {
             return response()->json(['message' => 'No autorizado'], 403);
@@ -48,13 +49,7 @@ class UserController extends Controller
 
         $user = User::withTrashed()->findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'role' => 'sometimes|string|in:admin,vendedor',
-            'password' => 'sometimes|string|min:8'
-        ]);
+        $validated = $request->validated();
 
         $user->update($validated);
 

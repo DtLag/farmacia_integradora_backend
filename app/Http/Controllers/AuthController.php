@@ -2,70 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginCustomerRequest;
+use App\Http\Requests\Auth\LoginStaffRequest;
+use App\Http\Requests\Auth\RegisterCustomerRequest;
+use App\Http\Requests\Auth\RegisterStaffRequest;
+use App\Http\Resources\Auth\CustomerResource;
+use App\Http\Resources\Auth\LoginResponseResource;
+use App\Http\Resources\Auth\StaffResource;
 use App\Models\User;
 use App\Models\Customer;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Traits\PerformsLogin;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    use PerformsLogin;
+
     // --- STAFF ---
 
-    public function loginStaff(Request $request)
+    public function loginStaff(LoginStaffRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $result = $this->performStaffLogin($request->validated());
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['Credenciales incorrectas.'],
-            ]);
-        }
-
-        $user = Auth::user();
-
-        if (!$user->role || $user->role === 'customer') {
-            throw ValidationException::withMessages([
-                'email' => ['No eres staff. Usa el login de clientes.'],
-            ]);
-        }
-
-        $token = $user->createToken('staff-token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
+        return new LoginResponseResource([
+            'token' => $result['token'],
+            'user' => new StaffResource($result['user']),
         ]);
     }
 
     // Registrar un nuevo staff
-    public function registerStaff(Request $request)
+    public function registerStaff(RegisterStaffRequest $request)
     {
         // Verificar si el usuario autenticado es admin
         if ($request->user()->role !== 'admin') {
             return response()->json(['message' => 'No tienes permisos para realizar esta acción.'], 403);
         }
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'user_id' => 'required|string|unique:users',
-            'role' => 'required|string|in:admin,vendedor',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'user_id' => $request->user_id,
-            'role' => $request->role,
+            'name' => $validated['name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'user_id' => $validated['user_id'],
+            'role' => $validated['role'],
         ]);
 
         return response()->json([
@@ -76,20 +57,15 @@ class AuthController extends Controller
 
     // --- CUSTOMERS ---
 
-    public function registerCustomer(Request $request)
+    public function registerCustomer(RegisterCustomerRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|unique:customers',
-            'email' => 'required|string|email|max:255|unique:customers',
-            'password' => 'required|string|min:8',
-        ]);
+        $validated = $request->validated();
 
         $customer = Customer::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
         $token = $customer->createToken('customer-token')->plainTextToken;
@@ -100,26 +76,13 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function loginCustomer(Request $request)
+    public function loginCustomer(LoginCustomerRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $result = $this->performCustomerLogin($request->validated());
 
-        $customer = Customer::where('email', $request->email)->first();
-
-        if (! $customer || ! Hash::check($request->password, $customer->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Credenciales incorrectas.'],
-            ]);
-        }
-
-        $token = $customer->createToken('customer-token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $customer,
+        return new LoginResponseResource([
+            'token' => $result['token'],
+            'user' => new CustomerResource($result['user']),
         ]);
     }
 }
