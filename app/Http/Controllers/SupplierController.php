@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Supplier;
 use App\Traits\ApiResponse;
 
-class SupplierControlelr extends Controller
+class SupplierController extends Controller
 {
     use ApiResponse;
     public function index()
