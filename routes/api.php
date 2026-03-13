@@ -67,3 +67,11 @@ Route::post('/register-batch-reception', [BatchController::class, 'registerBatch
 Route::get('/products/search', [ProductController::class, 'search']);
 Route::post('/sales', [SaleController::class, 'store']);
 Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
+
+Route::get('/categories', function () {
+    return \App\Models\Category::all();
+});
+
+Route::get('/suppliers', function () {
+    return \App\Models\Supplier::all();
+});
