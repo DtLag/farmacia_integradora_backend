@@ -10,6 +10,7 @@ use App\Http\Controllers\BatchController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PickUpController;
+use App\Http\Controllers\ProcessOrderPickUpController;
 use App\Http\Controllers\UserController;
 
 // --- Rutas Públicas ---
@@ -52,11 +53,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
 });
 
-Route::get('/pickup/orders/pending', [PickUpController::class, 'indexPending']);
+Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
 
-Route::patch('/pickup/orders/{id}/start', [PickUpController::class, 'startPreparation']);
+Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
 
-Route::patch('/pickup/orders/{id}/finish', [PickUpController::class, 'finishPreparation']);
+Route::patch('/pickup/orders/{id}/finish', [ProcessOrderPickUpController::class, 'finishPreparation']);
 
 Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
