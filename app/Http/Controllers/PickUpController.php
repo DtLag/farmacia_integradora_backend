@@ -12,6 +12,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PickUpController extends Controller
 {
@@ -21,7 +22,7 @@ class PickUpController extends Controller
     {
         return DB::transaction(function () use ($request) {
 
-            $customer = auth()->user()->customer;
+            $customer = Auth::user()->customer;
 
             if (!$customer) {
                 return response()->json([
@@ -71,7 +72,7 @@ class PickUpController extends Controller
             }
 
             Audit::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'affected_module' => 'orders',
                 'action_performed' => 'create',
                 'detail' => "Pedido PickUp creado ID {$order->id}"

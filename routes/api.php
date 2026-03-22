@@ -10,6 +10,7 @@ use App\Http\Controllers\BatchController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PickUpController;
+use App\Http\Controllers\ProcessOrderPickUpController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
@@ -65,11 +66,14 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    //Crear pedido pick-up
     Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
 });
 
-// --- Extras (productos, batches, etc.) ---
+Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
+
+Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
+
+Route::patch('/pickup/orders/{id}/finish', [ProcessOrderPickUpController::class, 'finishPreparation']);
 
 Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
@@ -78,3 +82,6 @@ Route::get('/products/search', [ProductController::class, 'search']);
 Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
 
 Route::apiResource('categories', CategoryController::class);
+Route::get('/categories/get', function () {
+    return \App\Models\Category::all();
+});
