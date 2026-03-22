@@ -72,4 +72,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductReception::class);
     }
+
+    public function pickUpReservations()
+    {
+        return $this->hasMany(PickUpReservation::class);
+    }
 }
