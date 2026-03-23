@@ -25,9 +25,7 @@ class PickUpController extends Controller
             $customer = Auth::user()->customer;
 
             if (!$customer) {
-                return response()->json([
-                    'message' => 'No autenticado'
-                ], 401);
+                return $this->response(false, 'No autenticado', null, null, 401);
             }
 
             $scheduled = Carbon::parse($request->scheduled_time);

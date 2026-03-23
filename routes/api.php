@@ -9,11 +9,13 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CancelPickUpOrderController;
 use App\Http\Controllers\PickUpController;
 use App\Http\Controllers\ProcessOrderPickUpController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompletePickUpController;
 
 // --- Rutas Publicas ---
 
@@ -82,6 +84,15 @@ Route::get('/products/search', [ProductController::class, 'search']);
 Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
 
 Route::apiResource('categories', CategoryController::class);
+
+Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'completeOrder']);
+
+Route::post('/pickup/{id}/cancel', [CancelPickUpOrderController::class, 'manualCancel']);
+
 Route::get('/categories/get', function () {
     return \App\Models\Category::all();
+});
+
+Route::get('/supply', function () {
+    return \App\Models\Supplier::all();
 });
