@@ -20,6 +20,8 @@ class ProcessOrderPickUpController extends Controller
             ->get();
 
         return $this->response(true, 'Pedidos pendientes', $orders, null, 200);
+
+        
     }
 
 
@@ -31,18 +33,11 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
-        if ($order->state !== 'pending') {
-            return $this->response(false, 'El pedido no está pendiente', null, null, 409);
-        }
-
-        $order->state = 'preparing';
-        $order->save();
-
         Audit::create([
             'user_id' => Auth::id(),
             'affected_module' => 'orders',
             'action_performed' => 'update',
-            'detail' => "Pedido {$order->id} cambiado a En preparación"
+            'detail' => "Pedido {$order->id} en preparación"
         ]);
 
         return $this->response(true, 'Pedido en preparación', $order, null, 200);
@@ -63,18 +58,8 @@ class ProcessOrderPickUpController extends Controller
                 return $this->response(false, 'El pedido no está en preparación', null, null, 409);
             }
 
-            $order->state = 'ready_for_pickup';
+            $order->state = 'ready';
             $order->save();
-
-            foreach ($order->orderDetails as $detail) {
-
-                $reservation = $detail->reservation;
-
-                if ($reservation) {
-                    $reservation->state = 'ready';
-                    $reservation->save();
-                }
-            }
 
             Audit::create([
                 'user_id' => Auth::id(),
