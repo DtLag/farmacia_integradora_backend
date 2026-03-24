@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('contact')->nullable();
-            $table->string('email')->nullable()->index();
+            $table->string('email')->nullable()->unique();
             $table->string('phone_number')->nullable();
 
             $table->softDeletes();
