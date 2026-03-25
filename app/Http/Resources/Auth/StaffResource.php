@@ -21,7 +21,7 @@ class StaffResource extends JsonResource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'user_id' => $this->user_id,
-            'role' => $this->role instanceof Role ? $this->role->name : null,
+            'role' => $this->role?->name,
         ];
     }
 }

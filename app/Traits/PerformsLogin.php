@@ -25,6 +25,8 @@ trait PerformsLogin
         /** @var User $user */
         $user = Auth::user();
 
+        $user->load('role');
+
         if (! $user->role || $user->role === 'customer') {
             throw ValidationException::withMessages([
                 'email' => ['No eres staff. Usa el login de clientes.'],
