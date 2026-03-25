@@ -34,7 +34,7 @@ class AuthController extends Controller
     public function registerStaff(RegisterStaffRequest $request)
     {
         // Verificar si el usuario autenticado es admin
-        if ($request->user()->role !== 'admin') {
+        if ($request->user()->role->slug !== 'admin') {
             return response()->json(['message' => 'No tienes permisos para realizar esta acción.'], 403);
         }
 
@@ -46,12 +46,12 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'user_id' => $validated['user_id'],
-            'role' => $validated['role'],
+            'role_id' => $validated['role_id'],
         ]);
 
         return response()->json([
             'message' => 'Usuario de staff creado exitosamente',
-            'user' => $user,
+            'user' => $user->load('role'),
         ], 201);
     }
 

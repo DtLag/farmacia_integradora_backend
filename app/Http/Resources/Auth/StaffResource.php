@@ -4,6 +4,7 @@ namespace App\Http\Resources\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Role;
 
 class StaffResource extends JsonResource
 {
@@ -20,7 +21,7 @@ class StaffResource extends JsonResource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'user_id' => $this->user_id,
-            'role' => $this->role,
+            'role' => $this->role instanceof Role ? $this->role->name : null,
         ];
     }
 }
