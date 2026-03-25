@@ -19,7 +19,7 @@ class RegisterStaffRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'user_id' => ['required', 'string', 'unique:users,user_id'],
-            'role' => ['required', 'string', 'in:admin,vendedor'],
+            'role_id' => ['required', 'exists:roles,id'],
         ];
     }
 }
