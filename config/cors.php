@@ -3,7 +3,8 @@ return [
     'paths' => ['api/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
-        'https://harold-dev.me'
+        'https://harold-dev.me', 
+        '*'
         ],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
