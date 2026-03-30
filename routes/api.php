@@ -96,3 +96,4 @@ Route::get('/categories/get', function () {
 Route::get('/supply', function () {
     return \App\Models\Supplier::all();
 });
+Route::get('payment-methods', [SaleController::class, 'getPaymentMethods']);
