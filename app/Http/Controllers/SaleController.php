@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TicketResource;
+use App\Models\PaymentMethod;
 
 class SaleController extends Controller
 {
@@ -100,3 +101,13 @@ class SaleController extends Controller
         }
     }
 }
+public function getPaymentMethods()
+    {
+        try {
+            $paymentMethods = PaymentMethod::all();
+
+            return $this->response(true, 'Métodos de pago obtenidos exitosamente', $paymentMethods);
+        } catch (\Exception $e) {
+            return $this->response(false, 'Error al obtener los métodos de pago: ' . $e->getMessage(), null, null, 400);
+        }
+    }
