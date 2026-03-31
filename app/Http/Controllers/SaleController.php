@@ -100,8 +100,7 @@ class SaleController extends Controller
             return $this->response(false, 'Error al obtener el ticket: ' . $e->getMessage(), null, null, 400);
         }
     }
-}
-public function getPaymentMethods()
+    public function getPaymentMethods()
     {
         try {
             $paymentMethods = PaymentMethod::all();
@@ -111,3 +110,6 @@ public function getPaymentMethods()
             return $this->response(false, 'Error al obtener los métodos de pago: ' . $e->getMessage(), null, null, 400);
         }
     }
+    
+}
+
