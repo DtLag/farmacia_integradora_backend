@@ -17,4 +17,9 @@ class OrderDetail extends Model
     {
         return $this->hasOne(PickUpReservation::class, 'product_id', 'product_id');
     }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }
