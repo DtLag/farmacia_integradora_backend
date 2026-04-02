@@ -69,13 +69,6 @@ class PickUpController extends Controller
                 $product->save();
             }
 
-            Audit::create([
-                'user_id' => Auth::id(),
-                'affected_module' => 'orders',
-                'action_performed' => 'create',
-                'detail' => "Pedido PickUp creado ID {$order->id}"
-            ]);
-
             return $this->response(true, 'Pedido creado correctamente', $order, null, 201);
         });
     }

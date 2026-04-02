@@ -29,13 +29,6 @@ class ProductsController extends Controller
 
         $product->delete();
 
-        Audit::create([
-            'user_id' => auth()->id,
-            'affected_module' => 'Product',
-            'action_performed' => 'delete',
-            'detail' => "Se eliminó el producto {$product->name}"
-        ]);
-
         return $this->response(
             true, "El producto se ha eliminado", null, null, 201
         );
