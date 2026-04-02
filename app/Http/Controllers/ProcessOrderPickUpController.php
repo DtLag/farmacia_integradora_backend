@@ -33,13 +33,6 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
-        Audit::create([
-            'user_id' => Auth::id(),
-            'affected_module' => 'orders',
-            'action_performed' => 'update',
-            'detail' => "Pedido {$order->id} en preparación"
-        ]);
-
         return $this->response(true, 'Pedido en preparación', $order, null, 200);
     }
 
@@ -60,13 +53,6 @@ class ProcessOrderPickUpController extends Controller
 
             $order->state = 'ready';
             $order->save();
-
-            Audit::create([
-                'user_id' => Auth::id(),
-                'affected_module' => 'orders',
-                'action_performed' => 'update',
-                'detail' => "Pedido {$order->id} listo para recoger"
-            ]);
 
             return $this->response(
                 true,

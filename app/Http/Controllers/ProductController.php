@@ -45,19 +45,6 @@ class ProductController extends Controller
             // 3. Crear producto
             $product = Product::create($request->all());
 
-            // 4. Auditoría
-            try {
-                Audit::create([
-                    'user_id' => Auth::id(),
-                    'affected_module' => 'Productos',
-                    'action_performed' => 'Registro',
-                    'detail' => "Se registró nuevo producto: {$product->name}",
-                    'date_time' => now()
-                ]);
-            } catch (\Exception $e) {
-                Log::error("Error de Auditoría (Registro): " . $e->getMessage());
-            }
-
             DB::commit();
 
             return $this->response(true, 'Producto registrado exitosamente', new ProductResource($product), null, 201);
@@ -99,19 +86,6 @@ class ProductController extends Controller
 
             // 3. Guardar cambios
             $product->update($request->all());
-
-            // 4. Auditoría
-            try {
-                Audit::create([
-                    'user_id' => Auth::id(),
-                    'affected_module' => 'Productos',
-                    'action_performed' => 'Edición',
-                    'detail' => "Se actualizó la información del producto ID {$product->id}: {$product->name}",
-                    'date_time' => now()
-                ]);
-            } catch (\Exception $e) {
-                Log::error("Error de Auditoría (Edición): " . $e->getMessage());
-            }
 
             DB::commit();
             return $this->response(true, 'Producto actualizado correctamente', new ProductResource($product), null, 200);

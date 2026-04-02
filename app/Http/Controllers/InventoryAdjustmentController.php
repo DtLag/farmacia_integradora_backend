@@ -46,13 +46,6 @@ class InventoryAdjustmentController extends Controller
             'user_id' => auth()->id
         ]);
 
-        Audit::create([
-            'user_id' => auth()->id,
-            'affected_module' => 'Product',
-            'action_performed' => 'update',
-            'detail' => "Se actualizó un producto {$product->name}"
-        ]);
-
         return $this->response(true, "Hubo un cambio en el inventario y stock del producto", $product, null, 200);
     }
 }
