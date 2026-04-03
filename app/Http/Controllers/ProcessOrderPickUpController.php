@@ -8,6 +8,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\PickUpStatusUpdated;
 
 class ProcessOrderPickUpController extends Controller
 {
@@ -33,6 +34,11 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
+        $order->state = 'preparing';
+        $order->save();
+
+        broadcast(new PickUpStatusUpdated($order));
+
         return $this->response(true, 'Pedido en preparación', $order, null, 200);
     }
 
@@ -53,6 +59,8 @@ class ProcessOrderPickUpController extends Controller
 
             $order->state = 'ready';
             $order->save();
+
+            broadcast(new PickUpStatusUpdated($order));
 
             return $this->response(
                 true,
