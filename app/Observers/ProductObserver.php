@@ -5,6 +5,8 @@ namespace App\Observers;
 use App\Models\Product;
 use App\Traits\Auditable;
 use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
+use App\Events\ProductStockUpdated;
+use App\Events\LowStockAlert;
 
 class ProductObserver implements ShouldHandleEventsAfterCommit
 {
@@ -25,6 +27,14 @@ class ProductObserver implements ShouldHandleEventsAfterCommit
         if ($product->wasChanged(['stock', 'sale_price', 'location'])) {
             $changes = json_encode($product->getChanges());
             $this->Audit('Productos', 'Actualizado', "ID: {$product->id}. Cambios: {$changes}");
+        }
+
+        if ($product->wasChanged('stock')) {
+            broadcast(new ProductStockUpdated($product));
+        }
+
+        if ($product->stock <= $product->min_stock) {
+            broadcast(new LowStockAlert($product));
         }
     }
 

@@ -9,6 +9,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Events\PickUpStatusUpdated;
 
 class CancelPickUpOrderController extends Controller
 {
@@ -45,6 +46,8 @@ class CancelPickUpOrderController extends Controller
             
                 $order->state = 'canceled';            
                 $order->save();
+
+                broadcast(new PickUpStatusUpdated($order));
             
                 return $this->response(true, 'Pedido cancelado', $order, null, 200);
             });
@@ -82,6 +85,8 @@ class CancelPickUpOrderController extends Controller
 
             $order->state = 'canceled';
             $order->save();
+
+            broadcast(new PickUpStatusUpdated($order));
 
             return $this->response(true, 'Pedido cancelado', $order, null, 200);
 
