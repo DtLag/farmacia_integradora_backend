@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ventas
     Route::post('/sales', [SaleController::class, 'store']);
     Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
+    Route::get('reports/sales-and-orders', [SaleController::class, 'getSalesAndOrdersReport']);
 
     // Proveedores
     Route::get('/suppliers', [SupplierController::class, 'index']);
