@@ -1,4 +1,3 @@
-// --- Rutas API ---
 <?php
 
 use App\Http\Controllers\AlertController;
