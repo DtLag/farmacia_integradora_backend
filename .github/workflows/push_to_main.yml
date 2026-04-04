@@ -16,6 +16,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd htdocs/api.harold-dev.me/
             git pull
