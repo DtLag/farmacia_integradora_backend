@@ -1,3 +1,4 @@
+// --- Rutas API ---
 <?php
 
 use App\Http\Controllers\AlertController;
@@ -54,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ventas
     Route::post('/sales', [SaleController::class, 'store']);
     Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
-    Route::get('reports/sales-and-orders', [SaleController::class, 'getSalesAndOrdersReport']);
+    Route::get('reports/sales-and-orders', [SaleController::class, 'getAllSalesAndPickups']);
 
     // Proveedores
     Route::get('/suppliers', [SupplierController::class, 'index']);
