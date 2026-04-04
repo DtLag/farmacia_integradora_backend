@@ -3,8 +3,7 @@ return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
-        'https://harold-dev.me', 
-        'http://localhost:5173'
+        '*'
         ],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
