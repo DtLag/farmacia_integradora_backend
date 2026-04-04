@@ -126,7 +126,7 @@ class SaleController extends Controller
                 ];
             });
 
-            $pickups = Order::where('status', 'completed')->get()->map(function ($order) {
+            $pickups = Order::where('state', 'completed')->get()->map(function ($order) {
                 return [
                     'id' => $order->id,
                     'total' => (float) $order->total,
