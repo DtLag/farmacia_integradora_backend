@@ -75,8 +75,6 @@ Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'inde
 
 Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
 
-Route::patch('/pickup/orders/{id}/finish', [ProcessOrderPickUpController::class, 'finishPreparation']);
-
 Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
 Route::get('/products/search', [ProductController::class, 'search']);
@@ -89,6 +87,7 @@ Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'complete
 
 Route::post('/pickup/{id}/cancel', [CancelPickUpOrderController::class, 'manualCancel']);
 
+
 Route::get('/categories/get', function () {
     return \App\Models\Category::all();
 });
@@ -97,3 +96,5 @@ Route::get('/supply', function () {
     return \App\Models\Supplier::all();
 });
 Route::get('payment-methods', [SaleController::class, 'getPaymentMethods']);
+
+Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);

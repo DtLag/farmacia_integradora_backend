@@ -79,4 +79,11 @@ class PickUpController extends Controller
             return $this->response(true, 'Pedido creado correctamente', $order, null, 201);
         });
     }
+
+    public function index(string $state)
+    {
+        $orders = Order::with(['orderDetails.product', 'customer', 'employee', 'payment'])->where('state', $state)->get();
+
+        return $this->response(true, "Pedidos", $orders, null, 200);
+    }
 }

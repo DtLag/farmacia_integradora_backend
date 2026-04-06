@@ -33,48 +33,22 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
+        $order->state = 'ready';
+        $order->save();
+            
         Audit::create([
             'user_id' => Auth::id(),
             'affected_module' => 'orders',
             'action_performed' => 'update',
-            'detail' => "Pedido {$order->id} en preparación"
+            'detail' => "Pedido {$order->id} listo para recoger"
         ]);
-
-        return $this->response(true, 'Pedido en preparación', $order, null, 200);
-    }
-
-
-    public function finishPreparation($id)
-    {
-        return DB::transaction(function () use ($id) {
-
-            $order = Order::find($id);
-
-            if (!$order) {
-                return $this->response(false, 'Pedido no encontrado', null, null, 404);
-            }
-
-            if ($order->state !== 'preparing') {
-                return $this->response(false, 'El pedido no está en preparación', null, null, 409);
-            }
-
-            $order->state = 'ready';
-            $order->save();
-
-            Audit::create([
-                'user_id' => Auth::id(),
-                'affected_module' => 'orders',
-                'action_performed' => 'update',
-                'detail' => "Pedido {$order->id} listo para recoger"
-            ]);
-
-            return $this->response(
-                true,
-                'Pedido listo para recoger',
-                $order,
-                null,
-                200
-            );
-        });
+            
+        return $this->response(
+            true,
+            'Pedido listo para recoger',
+            $order,
+            null,
+            200
+        );
     }
 }
