@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewPickUpOrderReceived;
 use App\Http\Requests\CreatePickUpRequest;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -11,6 +12,7 @@ use App\Models\Audit;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
