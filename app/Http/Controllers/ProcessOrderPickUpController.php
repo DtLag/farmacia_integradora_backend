@@ -34,41 +34,11 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
-        $order->state = 'preparing';
+        $order->state = 'ready';
         $order->save();
 
         broadcast(new PickUpStatusUpdated($order));
 
         return $this->response(true, 'Pedido en preparación', $order, null, 200);
-    }
-
-
-    public function finishPreparation($id)
-    {
-        return DB::transaction(function () use ($id) {
-
-            $order = Order::find($id);
-
-            if (!$order) {
-                return $this->response(false, 'Pedido no encontrado', null, null, 404);
-            }
-
-            if ($order->state !== 'preparing') {
-                return $this->response(false, 'El pedido no está en preparación', null, null, 409);
-            }
-
-            $order->state = 'ready';
-            $order->save();
-
-            broadcast(new PickUpStatusUpdated($order));
-
-            return $this->response(
-                true,
-                'Pedido listo para recoger',
-                $order,
-                null,
-                200
-            );
-        });
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewPickUpOrderReceived;
 use App\Http\Requests\CreatePickUpRequest;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -11,6 +12,7 @@ use App\Models\Audit;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,5 +81,12 @@ class PickUpController extends Controller
             $code = $e->getCode() ?: 400; 
             return $this->response(false, $e->getMessage(), null, 'Error en pedido', $code);
         }
+    }
+
+    public function index(string $state)
+    {
+        $orders = Order::with(['orderDetails.product', 'customer', 'employee', 'payment'])->where('state', $state)->get();
+
+        return $this->response(true, "Pedidos", $orders, null, 200);
     }
 }

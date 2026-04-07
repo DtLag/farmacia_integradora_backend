@@ -60,4 +60,9 @@ class User extends Authenticatable
         {
             return $this->hasMany(Audit::class, 'user_id', 'id');
         }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'employee_id');
+    }
 }
