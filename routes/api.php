@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ventas
     Route::post('/sales', [SaleController::class, 'store']);
     Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
+    Route::get('reports/sales-and-orders', [SaleController::class, 'getAllSalesAndPickups']);
 
     // Proveedores
     Route::get('/suppliers', [SupplierController::class, 'index']);
@@ -95,6 +96,6 @@ Route::get('/categories/get', function () {
 Route::get('/supply', function () {
     return \App\Models\Supplier::all();
 });
-Route::get('payment-methods', [SaleController::class, 'getPaymentMethods']);
+Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
 
 Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);

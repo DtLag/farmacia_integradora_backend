@@ -20,64 +20,65 @@ class PickUpController extends Controller
 
     public function store(CreatePickUpRequest $request)
     {
-        return DB::transaction(function () use ($request) {
+        try {
+            $order = DB::transaction(function () use ($request) {
 
-            $customer = Auth::user()->customer;
+                $customer = Auth::user()->customer;
 
-            if (!$customer) {
-                return $this->response(false, 'No autenticado', null, null, 401);
-            }
-
-            $scheduled = Carbon::parse($request->scheduled_time);
-
-            if ($scheduled->isPast() || $scheduled->isTomorrow()) {
-                return $this->response(false, 'Hora no válida. Debe ser hoy', null, 'Hora invalida', 422);
-            }
-
-            $order = Order::create([
-                'customer_id' => $customer->id,
-                'scheduled_time' => $scheduled,
-                'state' => 'pending'
-            ]);
-
-            foreach ($request->products as $prod) {
-
-                $product = Product::find($prod['product_id']);
-
-                if ($product->stock < $prod['amount']) {
-
-                    return $this->response(false, "Stock insuficiente para {$product->name}", null, 'Stock insuficiente', 409
-                    );
+                if (!$customer) {
+                    throw new Exception('No autenticado', 401);
                 }
 
-                OrderDetail::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'amount' => $prod['amount'],
-                    'unit_price' => $product->sale_price,
-                    'subtotal' => $product->sale_price * $prod['amount']
-                ]);
+                $scheduled = Carbon::parse($request->scheduled_time);
 
-                PickUpReservation::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'amount' => $prod['amount'],
+                if ($scheduled->isPast() || $scheduled->isTomorrow()) {
+                    throw new Exception('Hora no válida. Debe ser hoy', 422);
+                }
+
+                $order = Order::create([
+                    'customer_id' => $customer->id,
+                    'scheduled_time' => $scheduled,
                     'state' => 'pending'
                 ]);
 
-                $product->stock = $product->stock - $prod['amount'];
-                $product->save();
-            }
+                foreach ($request->products as $prod) {
+                    $product = Product::findOrFail($prod['product_id']);
 
-            Audit::create([
-                'user_id' => Auth::id(),
-                'affected_module' => 'orders',
-                'action_performed' => 'create',
-                'detail' => "Pedido PickUp creado ID {$order->id}"
-            ]);
+                    if ($product->stock < $prod['amount']) {
+                        throw new Exception("Stock insuficiente para {$product->name}", 409);
+                    }
+
+                    OrderDetail::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'amount' => $prod['amount'],
+                        'unit_price' => $product->sale_price,
+                        'subtotal' => $product->sale_price * $prod['amount']
+                    ]);
+
+                    PickUpReservation::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'amount' => $prod['amount'],
+                        'state' => 'pending'
+                    ]);
+
+                    $product->stock = $product->stock - $prod['amount'];
+                    $product->save();
+                }
+
+                return $order; 
+            });
+
+            $order->load('customer');
+            broadcast(new NewPickUpOrderReceived($order));
 
             return $this->response(true, 'Pedido creado correctamente', $order, null, 201);
-        });
+
+        } catch (Exception $e) {
+            $code = $e->getCode() ?: 400; 
+            return $this->response(false, $e->getMessage(), null, 'Error en pedido', $code);
+        }
     }
 
     public function index(string $state)

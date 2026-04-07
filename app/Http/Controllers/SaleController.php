@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SaleRequest;
 use Illuminate\Http\Request;
 use App\Models\Sale;
+use App\Models\Order;
 use App\Models\SaleDetail;
 use App\Models\InventoryMovement;
 use App\Models\Product;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\TicketResource;
 use App\Models\PaymentMethod;
+use Carbon\Carbon;
 
 class SaleController extends Controller
 {
@@ -100,8 +102,7 @@ class SaleController extends Controller
             return $this->response(false, 'Error al obtener el ticket: ' . $e->getMessage(), null, null, 400);
         }
     }
-}
-public function getPaymentMethods()
+    public function getPaymentMethods()
     {
         try {
             $paymentMethods = PaymentMethod::all();
@@ -111,3 +112,43 @@ public function getPaymentMethods()
             return $this->response(false, 'Error al obtener los métodos de pago: ' . $e->getMessage(), null, null, 400);
         }
     }
+    
+    public function getAllSalesAndPickups()
+    {
+        try {
+            $sales = Sale::all()->map(function ($sale) {
+                return [
+                    'id' => $sale->id,
+                    'total' => (float) $sale->total,
+                    'sale_type' => 'Mostrador',
+                    'date' => Carbon::parse($sale->date_time)->format('Y-m-d'),
+                    'sort_date' => $sale->date_time 
+                ];
+            });
+
+            $pickups = Order::where('state', 'completed')->get()->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'total' => (float) $order->total,
+                    'sale_type' => 'Pickup',
+                    'date' => Carbon::parse($order->created_at)->format('Y-m-d'),
+                    'sort_date' => $order->created_at
+                ];
+            });
+
+            $allTransactions = $sales->concat($pickups)
+                ->sortByDesc('sort_date')
+                ->values()
+                ->map(function ($item) {
+                    unset($item['sort_date']);
+                    return $item;
+                });
+
+            return $this->response(true, 'Reporte general obtenido exitosamente', $allTransactions);
+            
+        } catch (\Exception $e) {
+            return $this->response(false, 'Error al obtener el reporte: ' . $e->getMessage(), null, null, 400);
+        }
+    }
+}
+

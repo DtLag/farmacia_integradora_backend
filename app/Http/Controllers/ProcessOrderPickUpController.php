@@ -8,6 +8,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\PickUpStatusUpdated;
 
 class ProcessOrderPickUpController extends Controller
 {
@@ -35,20 +36,9 @@ class ProcessOrderPickUpController extends Controller
 
         $order->state = 'ready';
         $order->save();
-            
-        Audit::create([
-            'user_id' => Auth::id(),
-            'affected_module' => 'orders',
-            'action_performed' => 'update',
-            'detail' => "Pedido {$order->id} listo para recoger"
-        ]);
-            
-        return $this->response(
-            true,
-            'Pedido listo para recoger',
-            $order,
-            null,
-            200
-        );
+
+        broadcast(new PickUpStatusUpdated($order));
+
+        return $this->response(true, 'Pedido en preparación', $order, null, 200);
     }
 }

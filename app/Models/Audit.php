@@ -13,4 +13,9 @@ class Audit extends Model
     'date_time',
     'detail',
   ];
+
+  public function user()
+  {
+    return $this->belongsTo(User::class, 'user_id', 'id');
+  }
 }
