@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Traits\PerformsLogin;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendVerificationCode;
 
 class AuthController extends Controller
 {
@@ -59,6 +61,7 @@ class AuthController extends Controller
 
     public function registerCustomer(RegisterCustomerRequest $request)
     {
+        $code = random_int(1000, 9999);
         $validated = $request->validated();
 
         $customer = Customer::create([
@@ -66,12 +69,14 @@ class AuthController extends Controller
             'phone' => $validated['phone'] ?? null,
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'verification_code' => Hash::make($code),
+            'verification_code_expires_at' => now()->addMinutes(10),
+            'is_verified' => false,
         ]);
 
-        $token = $customer->createToken('customer-token')->plainTextToken;
+        Mail::to($customer->email)->send(new SendVerificationCode($code));
 
         return response()->json([
-            'token' => $token,
             'user' => $customer,
         ], 201);
     }
