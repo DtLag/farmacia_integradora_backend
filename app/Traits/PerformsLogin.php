@@ -53,6 +53,12 @@ trait PerformsLogin
             ]);
         }
 
+        if (! $customer->is_verified) {
+            throw ValidationException::withMessages([
+                'email' => ['Debes verificar tu correo antes de iniciar sesión.'],
+            ]);
+        }
+
         return [
             'token' => $customer->createToken('customer-token')->plainTextToken,
             'user' => $customer,
