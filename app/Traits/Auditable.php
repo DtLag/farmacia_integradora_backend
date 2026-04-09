@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 trait Auditable
 {
-    protected function Audit(string $module, string $action, string $detail = null)
+    protected function Audit(string $module, string $action, ?string $detail = null)
     {
         Audit::create([
             'user_id' => Auth::id(),

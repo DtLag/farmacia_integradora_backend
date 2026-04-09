@@ -12,8 +12,8 @@ class VerificationController extends Controller
 {
     public function verifyCode(Request $request) {
         $request->validate([
-            'email' => ['required|email'],
-            'code' => ['required'],
+            'email' => 'required|email',
+            'code' => 'required',
         ]);
 
         $customer = Customer::where('email', $request->email)->first();
@@ -45,7 +45,7 @@ class VerificationController extends Controller
 
     public function resendCode(Request $request) {
         $request->validate([
-            'email' => ['required|email'],
+            'email' => 'required|email',
         ]);
 
         $customer = Customer::where('email', $request->email)->first();
