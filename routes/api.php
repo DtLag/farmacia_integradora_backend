@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompletePickUpController;
+use App\Http\Controllers\VerificationController;
 
 // --- Rutas Publicas ---
 
@@ -98,3 +99,6 @@ Route::get('/supply', function () {
     return \App\Models\Supplier::all();
 });
 Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
+
+Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
+Route::post('/resend-code', [VerificationController::class, 'resendCode']);
