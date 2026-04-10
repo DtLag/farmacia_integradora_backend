@@ -17,6 +17,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompletePickUpController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\ReportController;
 
 // --- Rutas Publicas ---
 
@@ -102,3 +103,8 @@ Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
 Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
 Route::post('/resend-code', [VerificationController::class, 'resendCode']);
 Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);
+
+Route::get('/report/sales', [ReportController::class, 'salesReport']);
+Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
+Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
+Route::get('/staff', [UserController::class, 'staff']);

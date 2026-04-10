@@ -87,4 +87,13 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Usuario restaurado correctamente', 'user' => $user]);
     }
+    public function staff(){
+
+        $users = User::where('role_id','!=','3' )->get();
+        return response()->json([
+            'success' => true,
+            'count' => $users->count(),
+            'data' => $users,
+        ]);
+    }
 }
