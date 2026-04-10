@@ -14,45 +14,6 @@ use App\Events\PickUpStatusUpdated;
 class CancelPickUpOrderController extends Controller
 {
     use ApiResponse;
-    
-    public function automaticCancel()
-    {
-        $orders = Order::where('state', 'pending')->where('scheduled_time', '<', now())->get();
-
-        foreach($orders as $order){
-            DB::transaction( function () use($order) {
-                if($order->state !== 'pending'){
-                    return;
-                }
-            
-                $reservations = PickUpReservation::where('order_id', $order->id)->get();
-
-                foreach($reservations as $reservation){
-                    $product = $reservation->product;
-                    $product->stock += $reservation->amount;
-                    $product->save();
-                
-                    $reservation->state = 'canceled';
-                    $reservation->save();
-
-                    InventoryMovement::create([
-                        'product_id' => $product->id,
-                        'reason' => 'income',
-                        'amount' => $reservation->amount,
-                        'date_time' => now(),
-                        'user_id' => null
-                    ]);
-                }
-            
-                $order->state = 'canceled';            
-                $order->save();
-
-                broadcast(new PickUpStatusUpdated($order));
-            
-                return $this->response(true, 'Pedido cancelado', $order, null, 200);
-            });
-        }
-    }
 
     public function manualCancel($orderId)
     {

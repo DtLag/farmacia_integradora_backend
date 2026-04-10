@@ -8,6 +8,7 @@ use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
 class InventoryMovementObserver implements ShouldHandleEventsAfterCommit
 {
+    use Auditable;
     /**
      * Handle the InventoryMovement "created" event.
      */
@@ -15,8 +16,8 @@ class InventoryMovementObserver implements ShouldHandleEventsAfterCommit
     {
         $this->Audit(
             'Movimientos de Inventario', 
-            ucfirst($movement->reason), 
-            "Ajuste de stock para Producto ID: {$movement->product_id}. Cantidad: {$movement->amount}. Motivo: {$movement->reason}"
+            ucfirst($inventoryMovement->reason), 
+            "Ajuste de stock para Producto ID: {$inventoryMovement->product_id}. Cantidad: {$inventoryMovement->amount}. Motivo: {$inventoryMovement->reason}"
         );
     }
 
@@ -28,7 +29,7 @@ class InventoryMovementObserver implements ShouldHandleEventsAfterCommit
         $this->Audit(
             'Movimientos de Inventario', 
             'Modificación de Registro', 
-            "Se alteró un registro de movimiento previo (ID: {$movement->id})"
+            "Se alteró un registro de movimiento previo (ID: {$inventoryMovement->id})"
         );
     }
 }
