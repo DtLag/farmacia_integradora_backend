@@ -108,3 +108,4 @@ Route::get('/report/sales', [ReportController::class, 'salesReport']);
 Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
 Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
 Route::get('/staff', [UserController::class, 'staff']);
+Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);

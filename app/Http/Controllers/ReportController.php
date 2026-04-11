@@ -146,4 +146,11 @@ public function user_metrics(UserMetricsRequest $request){
 
     return $this->response(true, 'Métricas de usuario obtenidas correctamente', $metrics, null, 200);
 }
+public function restockProjection(){
+    
+    $report= DB::table('vw_restock_projection') ->get();
+    return $this->response(true, 'Proyección de reposición obtenida correctamente', $report, null, 200);
+}
+
+
 }
