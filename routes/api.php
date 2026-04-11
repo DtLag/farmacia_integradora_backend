@@ -18,6 +18,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompletePickUpController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CustomerController;
 
 // --- Rutas Publicas ---
 
@@ -109,3 +110,9 @@ Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
 Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
 Route::get('/staff', [UserController::class, 'staff']);
 Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);
+Route::post('customer/forgot-password', [CustomerController::class, 'forgotPassword']);
+Route::post('customer/reset-password', [CustomerController::class, 'resetPassword']);
+Route::post('customer/check-reset-code', [VerificationController::class, 'checkResetCode']);
+Route::get('customer/{id}', [CustomerController::class, 'show']);
+Route::put('customer/{id}', [CustomerController::class, 'update']);
+Route::delete('customer/{id}', [CustomerController::class, 'destroy']);

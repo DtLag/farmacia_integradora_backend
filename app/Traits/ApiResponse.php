@@ -18,7 +18,7 @@ trait ApiResponse
             'message' => $message,
             'data' => $data,
             'errors' => $errors,
-            '$code' => $code,
+            'code' => $code,
         ], $code);
     }
 }

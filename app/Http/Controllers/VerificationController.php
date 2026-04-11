@@ -7,9 +7,12 @@ use App\Mail\SendVerificationCode;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Traits\ApiResponse;
 
 class VerificationController extends Controller
 {
+    use ApiResponse;
+
     public function verifyCode(Request $request) {
         $request->validate([
             'email' => 'required|email',
@@ -38,9 +41,9 @@ class VerificationController extends Controller
         'is_verified' => true,
         'verification_code' => null,
         'verification_code_expires_at' => null
-    ]);
+        ]);
 
-        return response()->json(['message' => 'Usuario verificado exitosamente.']);
+        return $this->response(true, 'Usuario verificado correctamente', null, null, 200);
     }
 
     public function resendCode(Request $request) {
@@ -66,7 +69,30 @@ class VerificationController extends Controller
         ]);
 
         Mail::to($customer->email)->send(new SendVerificationCode($code));
+        
+        return $this->response(true, 'Código de verificación reenviado a tu correo', null, null, 200);
+    }
 
-        return response()->json(['message' => 'Código de verificación reenviado.']);
+    public function checkResetCode(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required',
+        ]);
+
+        $customer = Customer::where('email', $request->email)->first();
+
+        if(!$customer) {
+            return $this->response(false, 'Usuario no encontrado', null, null, 404);
+        }
+
+        if(!Hash::check($request->code, $customer->verification_code)) {
+            return $this->response(false, 'Código de verificación incorrecto', null, null, 400);
+        }
+
+        if(now()->gt($customer->verification_code_expires_at)) {
+            return $this->response(false, 'Código de verificación expirado', null, null, 400);
+        }
+
+        return $this->response(true, 'Código de verificación correcto', null, null, 200);
     }
 }
