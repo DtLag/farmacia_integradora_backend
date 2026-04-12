@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CancelPickUpOrderController;
 use App\Http\Controllers\PickUpController;
 use App\Http\Controllers\ProcessOrderPickUpController;
@@ -108,3 +109,6 @@ Route::get('/report/sales', [ReportController::class, 'salesReport']);
 Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
 Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
 Route::get('/staff', [UserController::class, 'staff']);
+
+Route::get('/audits', [AuditController::class, 'index']);
+Route::get('/today/audits', [AuditController::class, 'todayAudits']);

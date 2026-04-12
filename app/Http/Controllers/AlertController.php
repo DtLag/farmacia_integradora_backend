@@ -21,8 +21,10 @@ class AlertController extends Controller
     public function expireSoon()
     {
         $product = Product::whereHas('productReceptions', function($q){
-            $q->where('expiration_date', [now(), now()->addDays(7)]);
-        })->get();
+            $q->whereBetween('expiration_date', [now(), now()->addDays(7)]);
+        })->with(['productReceptions' => function($q) {
+            $q->whereBetween('expiration_date', [now(), now()->addDays(7)]);
+        }])->get();
         return $this->response(true, 'Productos que están por caducar', $product, null, 201);
     }
 
@@ -30,8 +32,10 @@ class AlertController extends Controller
     public function expired()
     {
         $product = Product::whereHas('productReceptions', function($q){
-            $q->whereBetween('expiration_date', '<' ,now());
-        })->get();
+            $q->where('expiration_date', '<' ,now());
+        })->with(['productReceptions' => function($q) {
+            $q->where('expiration_date', '<', now());
+        }])->get();
         return $this->response(true, 'Productos caducados', $product, null, 201);
     }
 }
