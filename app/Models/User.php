@@ -56,10 +56,10 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-        public function audits()
-        {
-            return $this->hasMany(Audit::class, 'user_id', 'id');
-        }
+    public function audits()
+    {
+        return $this->hasMany(Audit::class, 'user_id', 'id');
+    }
 
     public function orders()
     {

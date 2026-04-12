@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\CancelPickUpOrderController;
 use App\Http\Controllers\PickUpController;
 use App\Http\Controllers\ProcessOrderPickUpController;
@@ -116,3 +117,6 @@ Route::post('customer/check-reset-code', [VerificationController::class, 'checkR
 Route::get('customer/{id}', [CustomerController::class, 'show']);
 Route::put('customer/{id}', [CustomerController::class, 'update']);
 Route::delete('customer/{id}', [CustomerController::class, 'destroy']);
+
+Route::get('/audits', [AuditController::class, 'index']);
+Route::get('/today/audits', [AuditController::class, 'todayAudits']);
