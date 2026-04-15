@@ -25,6 +25,8 @@ use App\Http\Controllers\CustomerController;
 
 // Staff
 Route::post('/login/staff', [AuthController::class, 'loginStaff']);
+Route::post('/suppliers', [SupplierController::class, 'store']);
+Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
 
 Route::delete('/delete/{id}', [ProductsController::class, 'delete']);
 
@@ -63,7 +65,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Proveedores
     Route::get('/suppliers', [SupplierController::class, 'index']);
     Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
-    Route::post('/suppliers', [SupplierController::class, 'store']);
     Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
     Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
     Route::post('/suppliers/{id}/restore', [SupplierController::class, 'restore']);
@@ -84,9 +85,9 @@ Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
 Route::get('/products/search', [ProductController::class, 'search']);
 
-Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
-
 Route::apiResource('categories', CategoryController::class);
+Route::get('/inventory/products', [ProductController::class, 'inventory']);
+Route::get('/inventory/batches', [BatchController::class, 'inventory']);
 
 Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'completeOrder']);
 

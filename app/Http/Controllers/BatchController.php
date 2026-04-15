@@ -70,5 +70,62 @@ class BatchController extends Controller
         }
     }
 
+    public function inventory(Request $request)
+    {
+        $query = $request->input('query');
+
+        $receptions = ProductReception::query()
+            ->with([
+                'product.category',
+                'product.supplier',
+                'batch.supplier',
+                'user',
+            ])
+            ->when($query, function ($builder) use ($query) {
+                $builder->whereHas('product', function ($productQuery) use ($query) {
+                    $productQuery->where('codigo', 'LIKE', "%{$query}%")
+                        ->orWhere('name', 'LIKE', "%{$query}%")
+                        ->orWhere('description', 'LIKE', "%{$query}%")
+                        ->orWhere('location', 'LIKE', "%{$query}%");
+                })->orWhereHas('batch', function ($batchQuery) use ($query) {
+                    $batchQuery->where('identifier_batch', 'LIKE', "%{$query}%")
+                        ->orWhere('notes', 'LIKE', "%{$query}%");
+                });
+            })
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (ProductReception $reception) {
+                return [
+                    'id' => $reception->id,
+                    'amount' => $reception->amount,
+                    'unit_price' => $reception->unit_price,
+                    'reception_date' => $reception->reception_date,
+                    'expiration_date' => $reception->expiration_date,
+                    'product' => [
+                        'id' => $reception->product?->id,
+                        'codigo' => $reception->product?->codigo,
+                        'name' => $reception->product?->name,
+                        'presentation' => $reception->product?->presentation,
+                        'sale_price' => $reception->product?->sale_price,
+                        'location' => $reception->product?->location,
+                        'stock' => $reception->product?->stock,
+                        'category_name' => $reception->product?->category?->name,
+                        'supplier_name' => $reception->product?->supplier?->name,
+                    ],
+                    'batch' => [
+                        'id' => $reception->batch?->id,
+                        'identifier_batch' => $reception->batch?->identifier_batch,
+                        'entry_date' => $reception->batch?->entry_date,
+                        'notes' => $reception->batch?->notes,
+                        'supplier_name' => $reception->batch?->supplier?->name,
+                    ],
+                    'registered_by' => $reception->user?->name,
+                ];
+            })
+            ->values();
+
+        return $this->response(true, 'Inventario por lotes', $receptions, null, 200);
+    }
+
 
 }

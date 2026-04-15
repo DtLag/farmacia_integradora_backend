@@ -117,4 +117,30 @@ class ProductController extends Controller
             200
         );
     }
+
+    public function inventory(Request $request)
+    {
+        $query = $request->input('query');
+
+        $products = Product::query()
+            ->with(['productReceptions', 'category', 'supplier'])
+            ->when($query, function ($builder) use ($query) {
+                $builder->where(function ($subQuery) use ($query) {
+                    $subQuery->where('codigo', 'LIKE', "%{$query}%")
+                        ->orWhere('name', 'LIKE', "%{$query}%")
+                        ->orWhere('description', 'LIKE', "%{$query}%")
+                        ->orWhere('location', 'LIKE', "%{$query}%");
+                });
+            })
+            ->orderBy('name')
+            ->get();
+
+        return $this->response(
+            true,
+            'Inventario por productos',
+            ProductResource::collection($products),
+            null,
+            200
+        );
+    }
 }

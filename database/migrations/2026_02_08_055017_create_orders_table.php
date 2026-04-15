@@ -23,7 +23,7 @@ return new class extends Migration
                 'completed',
                 'canceled'
             ])->default('pending');
-            $table->foreignId('payment_method_id')->nullable()->constrained('payment_method', 'id', 'fk_orders_payment')->nullOnDelete();
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods', 'id', 'fk_orders_payment')->nullOnDelete();
             $table->foreignId('employee_id')->nullable()->constrained('users', 'id', 'fk_orders_employee')->nullOnDelete();
 
             $table->softDeletes();

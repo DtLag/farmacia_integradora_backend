@@ -22,7 +22,7 @@ return new class extends Migration
             ])->default('in progress');
             $table->decimal('total', 10, 2)->default(0.00);
             $table->decimal('subtotal', 10, 2)->default(0.00);
-            $table->foreignId('payment_method_id')->nullable()->constrained('payment_method', 'id', 'fk_sales_payment')->nullOnDelete();
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods', 'id', 'fk_sales_payment')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users', 'id', 'fk_sales_user')->nullOnDelete();
             $table->foreignId('customer_id')->nullable()->constrained('customers', 'id', 'fk_sales_customer')->nullOnDelete();
 

@@ -42,7 +42,7 @@ class SupplierController extends Controller
     // Crear un nuevo proveedor
     public function store(StoreSupplierRequest $request)
     {
-        if ($request->user()->role !== 'admin') {
+        if ($request->user() && $request->user()->role !== 'admin' && $request->user()->role !== 'Administrador') {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
