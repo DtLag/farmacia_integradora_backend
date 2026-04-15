@@ -8,7 +8,7 @@ use App\Models\Customer;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SendVerificationCode;
+use App\Mail\SendResetPasswordCode;
 
 class CustomerController extends Controller
 {
@@ -68,7 +68,7 @@ class CustomerController extends Controller
         $customer->verification_code_expires_at = now()->addMinutes(10);
         $customer->save();
 
-        Mail::to($customer->email)->send(new SendVerificationCode($code));
+        Mail::to($customer->email)->send(new SendResetPasswordCode($code));
 
         return $this->response(true, 'Código de verificación enviado a tu correo', null, null, 200);
     }
