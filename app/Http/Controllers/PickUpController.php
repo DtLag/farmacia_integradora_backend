@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Customer;
 
 class PickUpController extends Controller
 {
@@ -25,10 +26,10 @@ class PickUpController extends Controller
         try {
             $order = DB::transaction(function () use ($request) {
 
-                $customer = Auth::user()->customer;
+                $customer = Auth::user();
 
-                if (!$customer) {
-                    throw new Exception('No autenticado', 401);
+                if (!$customer instanceof Customer) {
+                    throw new Exception('Acceso denegado. Solo los clientes pueden hacer pedidos', 403);
                 }
 
                 $scheduled = Carbon::parse($request->scheduled_time);
@@ -40,6 +41,7 @@ class PickUpController extends Controller
                 $order = Order::create([
                     'customer_id' => $customer->id,
                     'scheduled_time' => $scheduled,
+                    'payment_method_id' => $request->payment_method_id,
                     'state' => 'pending'
                 ]);
 
@@ -79,13 +81,23 @@ class PickUpController extends Controller
 
         } catch (Exception $e) {
             $code = $e->getCode() ?: 400; 
-            return $this->response(false, $e->getMessage(), null, 'Error en pedido', $code);
+            $httpCode = (is_int($code) && $code >= 100 && $code <= 599) ? $code : 400;
+            return $this->response(false, $e->getMessage(), null, 'Error en pedido', $httpCode);
         }
     }
 
     public function index(string $state)
     {
-        $orders = Order::with(['orderDetails.product', 'customer', 'employee', 'payment'])->where('state', $state)->get();
+        $user = Auth::user();
+
+        $query = Order::with(['orderDetails.product', 'customer', 'employee', 'payment'])
+                      ->where('state', $state);
+
+        if ($user instanceof Customer) {
+            $query->where('customer_id', $user->id);
+        }
+
+        $orders = $query->get();
 
         return $this->response(true, "Pedidos", $orders, null, 200);
     }

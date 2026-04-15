@@ -10,6 +10,7 @@ class CreatePickUpRequest extends FormRequest
     {
         return [
             'scheduled_time' => ['required','date','after:now'],
+            'payment_method_id' => ['required', 'exists:payment_methods,id'],
             'products' => ['required','array','min:1'],
             'products.*.product_id' => ['required','exists:products,id'],
             'products.*.amount' => ['required','integer','min:1']
