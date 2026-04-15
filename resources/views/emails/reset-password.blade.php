@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* Mismos estilos que el anterior para mantener consistencia */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; margin: 0; padding: 0; }
         .email-wrapper { width: 100%; background-color: #f4f7fa; padding: 40px 0; }
         .email-content { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -24,14 +24,14 @@
                 <h1>Farmacia Integradora</h1>
             </div>
             <div class="body-section">
-                <h2>¡Bienvenido(a) a nuestra plataforma!</h2>
-                <p>Gracias por registrarte. Para completar la creación de tu cuenta y verificar tu dirección de correo electrónico, por favor ingresa el siguiente código:</p>
+                <h2>Recuperación de Contraseña</h2>
+                <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta. Ingresa el siguiente código en la aplicación para continuar:</p>
                 
                 <div class="code-container">
                     <span class="code">{{ $code }}</span>
                 </div>
                 
-                <p class="warning">Este código <strong>expira en 10 minutos</strong>. Si no solicitaste este registro, puedes ignorar este mensaje.</p>
+                <p class="warning">Este código <strong>expira en 10 minutos</strong>. Si tú no realizaste esta solicitud, tu cuenta está segura y puedes ignorar este correo.</p>
             </div>
             <div class="footer">
                 &copy; {{ date('Y') }} Farmacia Integradora. Todos los derechos reservados.

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterCustomerRequest extends FormRequest
 {
@@ -15,8 +16,16 @@ class RegisterCustomerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'unique:customers,phone'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
+            'phone' => ['nullable', 'string', 'max:10', 
+                Rule::unique('customers')->where(function ($query) {
+                    return $query->where('is_verified', true);
+                })
+            ],
+            'email' => ['required', 'email', 
+                Rule::unique('customers')->where(function ($query) {
+                    return $query->where('is_verified', true);
+                })
+            ],
             'password' => ['required', 'string', 'min:8'],
         ];
     }
