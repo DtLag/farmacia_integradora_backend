@@ -48,7 +48,7 @@ class AuditController extends Controller
     public function todayAudits(){
         $query = Audit::query();
 
-        $hoy = Carbon::today()->endOfDay();
+        $hoy = Carbon::today()->startOfDay();
 
         $today = $query->where('date_time', $hoy)->get();
 
