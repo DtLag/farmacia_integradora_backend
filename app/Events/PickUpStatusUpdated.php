@@ -14,15 +14,15 @@ class PickUpStatusUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $orderData;
+    public $order;
     /**
      * Create a new event instance.
      */
     public function __construct($order)
     {
-        $this->orderData = [
+        $this->order = [
             'id' => $order->id,
-            'status' => $order->status,
+            'state' => $order->state,
         ];
     }
 
@@ -34,7 +34,7 @@ class PickUpStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('staff.orders'),
+            new Channel('public-orders'),
         ];
     }
 
