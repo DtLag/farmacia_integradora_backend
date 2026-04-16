@@ -20,7 +20,9 @@ use App\Http\Controllers\CompletePickUpController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CustomerController;
+use Illuminate\Support\Facades\Broadcast;
 
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 // --- Rutas Publicas ---
 
 // Staff
