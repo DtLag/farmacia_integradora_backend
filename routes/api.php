@@ -20,7 +20,9 @@ use App\Http\Controllers\CompletePickUpController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CustomerController;
+use Illuminate\Support\Facades\Broadcast;
 
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 // --- Rutas Publicas ---
 
 // Staff
@@ -79,7 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
 
-Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
+Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation'])->middleware('auth:sanctum');
 
 Route::post('/products', [ProductController::class, 'registerProduct']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
@@ -105,7 +107,7 @@ Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
 
 Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
 Route::post('/resend-code', [VerificationController::class, 'resendCode']);
-Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);
+Route::get('/pickup/order/{state}', [PickUpController::class, 'index'])->middleware('auth:sanctum');
 
 Route::get('/report/sales', [ReportController::class, 'salesReport']);
 Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);

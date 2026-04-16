@@ -34,6 +34,7 @@ class ProcessOrderPickUpController extends Controller
             return $this->response(false, 'Pedido no encontrado', null, null, 404);
         }
 
+        $order->employee_id = Auth::id();
         $order->state = 'ready';
         $order->save();
 

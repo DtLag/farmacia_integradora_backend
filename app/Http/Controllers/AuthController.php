@@ -32,10 +32,8 @@ class AuthController extends Controller
         ]);
     }
 
-    // Registrar un nuevo staff
     public function registerStaff(RegisterStaffRequest $request)
     {
-        // Verificar si el usuario autenticado es admin
         if ($request->user()->role->slug !== 'admin') {
             return response()->json(['message' => 'No tienes permisos para realizar esta acción.'], 403);
         }
@@ -64,15 +62,27 @@ class AuthController extends Controller
         $code = random_int(1000, 9999);
         $validated = $request->validated();
 
-        $customer = Customer::create([
-            'name' => $validated['name'],
-            'phone' => $validated['phone'] ?? null,
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'verification_code' => Hash::make($code),
-            'verification_code_expires_at' => now()->addMinutes(10),
-            'is_verified' => false,
-        ]);
+        $customer = Customer::where('email', $validated['email'])->first();
+
+        if ($customer) {
+            $customer->update([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null,
+                'password' => Hash::make($validated['password']),
+                'verification_code' => Hash::make($code),
+                'verification_code_expires_at' => now()->addMinutes(10),
+            ]);
+        } else {
+            $customer = Customer::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null,
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'verification_code' => Hash::make($code),
+                'verification_code_expires_at' => now()->addMinutes(10),
+                'is_verified' => false,
+            ]);
+        }
 
         Mail::to($customer->email)->send(new SendVerificationCode($code));
 
