@@ -22,7 +22,7 @@ class PickUpStatusUpdated implements ShouldBroadcast
     {
         $this->orderData = [
             'id' => $order->id,
-            'status' => $order->status,
+            'state' => $order->state,
         ];
     }
 
