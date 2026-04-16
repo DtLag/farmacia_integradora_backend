@@ -3,63 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    private function isAdmin(Request $request): bool
+    {
+        return $request->user()?->loadMissing('role')->role?->slug === 'admin';
+    }
 
-    // Listar todos los usuarios
     public function index(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!$this->isAdmin($request)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
-        // Obtener usuarios
-        $query = User::query();
+        $query = User::with('role');
 
-        if ($request->has('with_trashed')) {
+        if ($request->boolean('with_trashed')) {
             $query->withTrashed();
         }
 
-        $users = $query->get();
-
-        return response()->json($users);
+        return response()->json($query->get());
     }
 
-    // Mostrar un usuario específico
     public function show(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!$this->isAdmin($request)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
-        $user = User::withTrashed()->findOrFail($id);
+        $user = User::withTrashed()->with('role')->findOrFail($id);
 
         return response()->json($user);
     }
 
-    // Actualizar un usuario
     public function update(UpdateUserRequest $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!$this->isAdmin($request)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
         $user = User::withTrashed()->findOrFail($id);
-
         $validated = $request->validated();
+
+        if (array_key_exists('role', $validated)) {
+            $role = Role::where('slug', $validated['role'])->first();
+
+            if (!$role) {
+                return response()->json(['message' => 'Rol no valido'], 422);
+            }
+
+            $validated['role_id'] = $role->id;
+            unset($validated['role']);
+        }
 
         $user->update($validated);
 
-        return response()->json(['message' => 'Usuario actualizado', 'user' => $user]);
+        return response()->json([
+            'message' => 'Usuario actualizado',
+            'user' => $user->fresh()->load('role'),
+        ]);
     }
 
-    // Eliminar un usuario (Soft Delete)
     public function destroy(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!$this->isAdmin($request)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
@@ -74,22 +85,28 @@ class UserController extends Controller
         return response()->json(['message' => 'Usuario desactivado correctamente']);
     }
 
-    // Restaurar un usuario eliminado
     public function restore(Request $request, $id)
     {
-        if ($request->user()->role !== 'admin') {
+        if (!$this->isAdmin($request)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
         $user = User::onlyTrashed()->findOrFail($id);
-
         $user->restore();
 
-        return response()->json(['message' => 'Usuario restaurado correctamente', 'user' => $user]);
+        return response()->json([
+            'message' => 'Usuario restaurado correctamente',
+            'user' => $user->fresh()->load('role'),
+        ]);
     }
-    public function staff(){
 
-        $users = User::where('role_id','!=','3' )->get();
+    public function staff()
+    {
+        $users = User::withTrashed()
+            ->with('role')
+            ->where('role_id', '!=', 3)
+            ->get();
+
         return response()->json([
             'success' => true,
             'count' => $users->count(),

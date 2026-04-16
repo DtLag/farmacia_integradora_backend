@@ -15,7 +15,7 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->route('id');
-
+    
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'last_name' => ['sometimes', 'string', 'max:255'],
@@ -25,4 +25,3 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 }
-
