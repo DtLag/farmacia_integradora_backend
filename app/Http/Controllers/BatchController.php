@@ -63,7 +63,7 @@ class BatchController extends Controller
             DB::commit();
 
             return 
-                $this->response(true, 'Batch reception registered successfully', new ReceptionResource($batch),null, 201);
+                $this->response(true, 'Batch reception registered successfully', (new ReceptionResource($batch))->resolve(),null, 201);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->response(false, 'Error registering batch ',null, $e->getMessage(), 500);
