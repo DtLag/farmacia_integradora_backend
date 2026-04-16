@@ -34,7 +34,7 @@ class PickUpStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('staff.orders'),
+            new Channel('staff.orders'),
         ];
     }
 
