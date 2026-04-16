@@ -43,10 +43,6 @@ class CompletePickUpController extends Controller
                     return $this->response(false, 'Producto no encontrado', null, null, 404);
                 }
 
-                if ($product->stock < $prods->amount) {
-                    return $this->response(false, 'Stock insuficiente', null, null, 409);;
-                }
-
                 $subtotal = $prods->unit_price * $prods->amount;
 
                 SaleDetail::create([
@@ -58,10 +54,6 @@ class CompletePickUpController extends Controller
                 ]);
 
                 $total += $subtotal;
-
-                $product->stock -= $prods->amount;    
-                $product->save();
-
             }
 
             $sale->subtotal = $total;
