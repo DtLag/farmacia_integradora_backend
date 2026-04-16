@@ -32,10 +32,8 @@ class AuthController extends Controller
         ]);
     }
 
-    // Registrar un nuevo staff
     public function registerStaff(RegisterStaffRequest $request)
     {
-        // Verificar si el usuario autenticado es admin
         if ($request->user()->role->slug !== 'admin') {
             return response()->json(['message' => 'No tienes permisos para realizar esta acción.'], 403);
         }
