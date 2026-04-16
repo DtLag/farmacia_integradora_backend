@@ -35,7 +35,7 @@ class ReceptionResource extends JsonResource
             /*
             'products' => $this->products()->with('product')->get()->map(function ($reception) {
                 return [
-                    'product' => new ProductResource($reception->product),
+                    'product' => (new ProductResource($reception->product))->resolve(),
                     'amount' => $reception->amount,
                     'unit_price' => $reception->unit_price,
                     'expiration_date' => $reception->expiration_date,   
