@@ -23,103 +23,103 @@ use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
-// --- Rutas Publicas ---
 
-// Staff
+// RUTAS PÚBLICAS (No requieren autenticación)
+
+// Autenticación Staff
 Route::post('/login/staff', [AuthController::class, 'loginStaff']);
-Route::post('/suppliers', [SupplierController::class, 'store']);
-Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
 
-Route::delete('/delete/{id}', [ProductsController::class, 'delete']);
-
-Route::get('/alert/stock', [AlertController::class, 'lowStock']);
-Route::get('/alert/expire', [AlertController::class, 'expireSoon']);
-Route::get('/alert/expired', [AlertController::class, 'expired']);
-
-Route::put('adjustment/{id}', [InventoryAdjustmentController::class, 'alter']);
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-// Clientes
-Route::post('/register/customer', [AuthController::class, 'registerCustomer']);
+// Autenticación Clientes
 Route::post('/login/customer', [AuthController::class, 'loginCustomer']);
+Route::post('/register/customer', [AuthController::class, 'registerCustomer']);
 
-// --- Rutas Protegidas (Requieren Token) ---
+// Recuperación y Verificación (Clientes)
+Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
+Route::post('/resend-code', [VerificationController::class, 'resendCode']);
+Route::post('customer/forgot-password', [CustomerController::class, 'forgotPassword']);
+Route::post('customer/reset-password', [CustomerController::class, 'resetPassword']);
+Route::post('customer/check-reset-code', [VerificationController::class, 'checkResetCode']);
 
-Route::middleware('auth:sanctum')->group(function () {
-
-    // Usuarios
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'show']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
-    Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    Route::post('/users/{id}/restore', [UserController::class, 'restore']);
-
-    Route::post('/register/staff', [AuthController::class, 'registerStaff']);
-
-    // Ventas
-    Route::post('/sales', [SaleController::class, 'store']);
-    Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
-    Route::get('reports/sales-and-orders', [SaleController::class, 'getAllSalesAndPickups']);
-
-    // Proveedores
-    Route::get('/suppliers', [SupplierController::class, 'index']);
-    Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
-    Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
-    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
-    Route::post('/suppliers/{id}/restore', [SupplierController::class, 'restore']);
-
-    // Usuario autenticado
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-
-    Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
-});
-
-Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
-
-Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation'])->middleware('auth:sanctum');
-
-Route::post('/products', [ProductController::class, 'registerProduct']);
-Route::patch('/products/{id}', [ProductController::class, 'update']);
+// Catálogo público (Buscador y Categorías para la Landing Page)
 Route::get('/products/search', [ProductController::class, 'search']);
-
-Route::apiResource('categories', CategoryController::class);
-Route::get('/inventory/products', [ProductController::class, 'inventory']);
-Route::get('/inventory/batches', [BatchController::class, 'inventory']);
-
-Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'completeOrder']);
-
-Route::post('/pickup/{id}/cancel', [CancelPickUpOrderController::class, 'manualCancel']);
-
-
 Route::get('/categories/get', function () {
     return \App\Models\Category::all();
 });
 
-Route::get('/supply', function () {
-    return \App\Models\Supplier::all();
+// RUTAS PRIVADAS (Requieren Token Sanctum)
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    // 🛡️ RUTAS EXCLUSIVAS DEL STAFF Y ADMIN (Aplicar Middleware)
+    Route::middleware('staff.only')->group(function () {
+        
+        // --- Gestión de Usuarios (Staff) ---
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
+        Route::post('/users/{id}/restore', [UserController::class, 'restore']);
+        Route::post('/register/staff', [AuthController::class, 'registerStaff']);
+        Route::get('/staff', [UserController::class, 'staff']);
+
+        // --- Gestión de Proveedores ---
+        Route::get('/suppliers', [SupplierController::class, 'index']);
+        Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
+        Route::post('/suppliers', [SupplierController::class, 'store']);
+        Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
+        Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
+        Route::post('/suppliers/{id}/restore', [SupplierController::class, 'restore']);
+        Route::get('/supply', function () {
+            return \App\Models\Supplier::all();
+        });
+
+        // --- Gestión de Productos e Inventario ---
+        Route::post('/products', [ProductController::class, 'registerProduct']);
+        Route::patch('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/delete/{id}', [ProductsController::class, 'delete']);
+        Route::apiResource('categories', CategoryController::class);
+        
+        Route::get('/inventory/products', [ProductController::class, 'inventory']);
+        Route::get('/inventory/batches', [BatchController::class, 'inventory']);
+        Route::post('/register-batch-reception', [BatchController::class, 'registerBatchReception']);
+        Route::put('adjustment/{id}', [InventoryAdjustmentController::class, 'alter']);
+
+        // --- Alertas y Auditorías ---
+        Route::get('/alert/stock', [AlertController::class, 'lowStock']);
+        Route::get('/alert/expire', [AlertController::class, 'expireSoon']);
+        Route::get('/alert/expired', [AlertController::class, 'expired']);
+        Route::get('/audits', [AuditController::class, 'index']);
+        Route::get('/today/audits', [AuditController::class, 'todayAudits']);
+
+        // --- Reportes y Métricas ---
+        Route::get('reports/sales-and-orders', [SaleController::class, 'getAllSalesAndPickups']);
+        Route::get('/report/sales', [ReportController::class, 'salesReport']);
+        Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
+        Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
+        Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);
+
+        // --- Proceso de Ventas (Punto de Venta) y Gestión de Pedidos ---
+        Route::post('/sales', [SaleController::class, 'store']);
+        Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
+        Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
+        
+        Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
+        Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
+        Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'completeOrder']);
+        Route::post('/pickup/{id}/cancel', [CancelPickUpOrderController::class, 'manualCancel']);
+        Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);
+
+        // --- Gestión de Clientes (CRUD desde el Admin) ---
+        Route::get('customer/{id}', [CustomerController::class, 'show']);
+        Route::put('customer/{id}', [CustomerController::class, 'update']);
+        Route::delete('customer/{id}', [CustomerController::class, 'destroy']);
+    });
+
+    // 🛒 RUTAS DEL CLIENTE
+    Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
+
 });
-Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
-
-Route::post('/verify-code', [VerificationController::class, 'verifyCode']);
-Route::post('/resend-code', [VerificationController::class, 'resendCode']);
-Route::get('/pickup/order/{state}', [PickUpController::class, 'index'])->middleware('auth:sanctum');
-
-Route::get('/report/sales', [ReportController::class, 'salesReport']);
-Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
-Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
-Route::get('/staff', [UserController::class, 'staff']);
-Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);
-Route::post('customer/forgot-password', [CustomerController::class, 'forgotPassword']);
-Route::post('customer/reset-password', [CustomerController::class, 'resetPassword']);
-Route::post('customer/check-reset-code', [VerificationController::class, 'checkResetCode']);
-Route::get('customer/{id}', [CustomerController::class, 'show']);
-Route::put('customer/{id}', [CustomerController::class, 'update']);
-Route::delete('customer/{id}', [CustomerController::class, 'destroy']);
-
-Route::get('/audits', [AuditController::class, 'index']);
-Route::get('/today/audits', [AuditController::class, 'todayAudits']);
