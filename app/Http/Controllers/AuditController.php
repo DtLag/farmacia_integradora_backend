@@ -48,9 +48,10 @@ class AuditController extends Controller
     public function todayAudits(){
         $query = Audit::query();
 
-        $hoy = Carbon::today()->startOfDay();
+        $start = Carbon::today()->startOfDay();
+        $end = Carbon::today()->endOfDay();
 
-        $today = $query->where('date_time', $hoy)->get();
+        $today = $query->whereBetween('date_time', [$start, $end])->get();
 
         return $this->response(true, 'Auditorías de hoy', $today, null, 200);
     }
