@@ -50,11 +50,15 @@ Route::get('/categories/get', function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
+    Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);
+
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // 🛡️ RUTAS EXCLUSIVAS DEL STAFF Y ADMIN (Aplicar Middleware)
+    // RUTAS EXCLUSIVAS DEL STAFF Y ADMIN (Aplicar Middleware)
     Route::middleware('staff.only')->group(function () {
         
         // --- Gestión de Usuarios (Staff) ---
@@ -105,13 +109,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // --- Proceso de Ventas (Punto de Venta) y Gestión de Pedidos ---
         Route::post('/sales', [SaleController::class, 'store']);
         Route::get('/sales/{id}/ticket', [SaleController::class, 'getTicket']);
-        Route::get('payment/methods', [SaleController::class, 'getPaymentMethods']);
         
-        Route::get('/pickup/orders/pending', [ProcessOrderPickUpController::class, 'indexPending']);
         Route::patch('/pickup/orders/{id}/start', [ProcessOrderPickUpController::class, 'startPreparation']);
         Route::post('/pickup/{id}/complete', [CompletePickUpController::class, 'completeOrder']);
         Route::post('/pickup/{id}/cancel', [CancelPickUpOrderController::class, 'manualCancel']);
-        Route::get('/pickup/order/{state}', [PickUpController::class, 'index']);
 
         // --- Gestión de Clientes (CRUD desde el Admin) ---
         Route::get('customer/{id}', [CustomerController::class, 'show']);
@@ -119,7 +120,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('customer/{id}', [CustomerController::class, 'destroy']);
     });
 
-    // 🛒 RUTAS DEL CLIENTE
+    // RUTAS DEL CLIENTE
     Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
 
 });
