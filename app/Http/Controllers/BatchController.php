@@ -17,58 +17,53 @@ class BatchController extends Controller
     /**
      * CU-02: Registrar Recepción de Lote
      */                                     // 1. Validación        
-    public function registerBatchReception(ReceptionRequest $request)
-    {
-        
+  public function registerBatchReception(ReceptionRequest $request)
+{
+    DB::beginTransaction();
 
-        try {
-            DB::beginTransaction();
+    try {
+        $totalUnits = collect($request['products'])->sum('amount');
+        $totalMoney = collect($request['products'])->sum(function ($item) {
+            return $item['amount'] * $item['unit_price'];
+        });
 
-            $totalUnits = collect($request['products'])->sum('amount');
+        // 1. Crear el Lote 
+        $batch = Batch::create([
+            'identifier_batch' => $request['identifier_batch'],
+            'supplier_id' => $request['supplier_id'] ?? null,
+            'entry_date' => $request['entry_date'] ?? null,
+            'notes' => $request['notes'] ?? null,
+            'products_count' => count($request['products']),
+            'units_count' => $totalUnits,
+            'total' => $totalMoney,
+        ]);
 
-            // Calcular total monetario
-            $totalMoney = collect($request['products'])->sum(function ($item) {
-                return $item['amount'] * $item['unit_price'];
-            });
-
-            // 1. Crear el Lote (Cabecera)
-            $batch = Batch::create([
-                'identifier_batch' => $request['identifier_batch'],
-                'supplier_id' => $request['supplier_id'] ?? null,
-                'entry_date' => $request['entry_date'] ?? null,
-                'notes' => $request['notes'] ?? null,
-                'products_count' => count($request['products']),
-                'units_count' => $totalUnits,
-                'total' => $totalMoney,
+        // 2. Registrar cada producto
+        foreach ($request['products'] as $productData) {
+            ProductReception::create([
+                'product_id' => $productData['product_id'],
+                'amount' => $productData['amount'],
+                'batch_id' => $batch->id,
+                'user_id' => auth()->id(),
+                'unit_price' => $productData['unit_price'],
+                'expiration_date' => $productData['expiration_date'] ?? null 
             ]);
 
-            // 2. Registrar cada producto del lote
-            foreach ($request['products'] as $productData) {
-                // Registrar recepción
-                ProductReception::create([
-                    'product_id' => $productData['product_id'],
-                    'amount' => $productData['amount'],
-                    'batch_id' => $batch->id,
-                    'user_id' => auth()->id(),
-                    'unit_price' => $productData['unit_price'],
-                    'expiration_date' => $productData['expiration_date'] ?? null 
-                ]);
-
-                // Actualizar stock global del producto
-                $product = Product::findOrFail($productData['product_id']);
-                $product->stock += $productData['amount'];
-                $product->save();
-            }
-
-            DB::commit();
-
-            return 
-                $this->response(true, 'Batch reception registered successfully', (new ReceptionResource($batch))->resolve(),null, 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->response(false, 'Error registering batch ',null, $e->getMessage(), 500);
+            $product = Product::findOrFail($productData['product_id']);
+            $product->stock += $productData['amount'];
+            $product->save();
         }
+
+        DB::commit();
+
+        return $this->response(true, 'Batch reception registered successfully', (new ReceptionResource($batch))->resolve(), null, 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return $this->response(false, 'Error registrando el lote, no se guardó nada.', null, $e->getMessage(), 500);
     }
+}
 
     public function inventory(Request $request)
     {

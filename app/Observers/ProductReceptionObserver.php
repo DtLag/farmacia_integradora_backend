@@ -8,6 +8,7 @@ use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 
 class ProductReceptionObserver implements ShouldHandleEventsAfterCommit
 {
+    use Auditable;
     /**
      * Handle the ProductReception "created" event.
      */

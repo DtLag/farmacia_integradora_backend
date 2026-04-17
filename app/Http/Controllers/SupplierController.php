@@ -42,12 +42,13 @@ class SupplierController extends Controller
     // Crear un nuevo proveedor
     public function store(StoreSupplierRequest $request)
     {
-        if ($request->user() && $request->user()->role !== 'admin' && $request->user()->role !== 'Administrador') {
+        $user = $request->user()->load('role');
+
+        if ($user->role->slug !== 'admin' && $user->role_id !== 1) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
         $validated = $request->validated();
-
         $supplier = Supplier::create($validated);
 
         return response()->json(['message' => 'Proveedor creado', 'supplier' => $supplier], 201);
