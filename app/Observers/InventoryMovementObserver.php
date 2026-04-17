@@ -12,12 +12,23 @@ class InventoryMovementObserver implements ShouldHandleEventsAfterCommit
     /**
      * Handle the InventoryMovement "created" event.
      */
+// app/Observers/InventoryMovementObserver.php
+
     public function created(InventoryMovement $inventoryMovement): void
     {
+        $product = $inventoryMovement->product;
+
+        if ($inventoryMovement->reason === 'income') {
+            $product->increment('stock', $inventoryMovement->amount);
+        } elseif ($inventoryMovement->reason === 'outcome') {
+            $product->decrement('stock', $inventoryMovement->amount);
+        }
+
+        // Tu lógica de auditoría existente
         $this->Audit(
             'Movimientos de Inventario', 
             ucfirst($inventoryMovement->reason), 
-            "Ajuste de stock para Producto ID: {$inventoryMovement->product_id}. Cantidad: {$inventoryMovement->amount}. Motivo: {$inventoryMovement->reason}"
+            "Ajuste de stock para Producto ID: {$inventoryMovement->product_id}. Cantidad: {$inventoryMovement->amount}."
         );
     }
 
