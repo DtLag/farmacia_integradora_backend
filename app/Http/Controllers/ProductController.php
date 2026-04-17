@@ -21,36 +21,27 @@ class ProductController extends Controller
 {
     use ApiResponse;
 
+
     /**
      * CU-01: Registrar Producto (Crear)
-     */                             // 1. Validación
+     */                             
     public function registerProduct(ProductRequest $request)
     {
-        $categories = Category::all();
-        $suppliers = Supplier::all();
-
-        
+        $data = $request->except('image');
 
         try {
             DB::beginTransaction();
 
-            // 2. Manejo de Imagen (Lógica HEAD)
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('product_images', 'public');
-                $request['image'] = $imagePath;
-            } else {
-                $request['image'] = null;
+                $data['image'] = $request->file('image')->store('product_images', 'public');
             }
             
-            // 3. Crear producto
-            $product = Product::create($request->all());
+            $product = Product::create($data);
 
             DB::commit();
 
             return $this->response(true, 'Producto registrado exitosamente', new ProductResource($product), null, 201);
             
-            
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error General (Registro): " . $e->getMessage());
@@ -58,10 +49,9 @@ class ProductController extends Controller
         }
     }
 
-    
     /**
      * CU-03: Editar Producto (Update)
-     */                    // 1. Validación
+     */                    
     public function update(UpdateReceptionRequest $request, $id)
     {
         $product = Product::find($id);
@@ -70,22 +60,20 @@ class ProductController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
 
+        $data = $request->except('image');
 
         try {
             DB::beginTransaction();
 
-            // 2. Manejo de Imagen en Edición
             if ($request->hasFile('image')) {
-                // Borrar imagen anterior si existe
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
                 }
-                $imagePath = $request->file('image')->store('product_images', 'public');
-                $request['image'] = $imagePath;
+                
+                $data['image'] = $request->file('image')->store('product_images', 'public');
             }
 
-            // 3. Guardar cambios
-            $product->update($request->all());
+            $product->update($data);
 
             DB::commit();
             return $this->response(true, 'Producto actualizado correctamente', new ProductResource($product), null, 200);
