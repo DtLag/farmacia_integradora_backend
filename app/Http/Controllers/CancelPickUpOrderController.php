@@ -20,7 +20,7 @@ class CancelPickUpOrderController extends Controller
         return DB::transaction( function () use ($orderId) {
             $order = Order::findOrFail($orderId);
 
-            if($order->state !== 'pending'){
+            if($order->state === 'completed' || $order->state === 'canceled'){
                 return $this->response(false, 'El pedido ya fue procesado o cancelado', null, null, 409);
             }
 
