@@ -29,9 +29,6 @@ class CancelPickUpOrderController extends Controller
             foreach($reservations as $reservation){
                 $product = $reservation->product;
 
-                $product->stock += $reservation->amount;
-                $product->save();
-
                 $reservation->state = 'canceled';
                 $reservation->save();
 
