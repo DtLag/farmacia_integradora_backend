@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/report/sales', [ReportController::class, 'salesReport']);
         Route::get('/report/inventory', [ReportController::class, 'inventoryReport']);
         Route::get('/user/metrics', [ReportController::class, 'user_metrics']);
+        Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);
 
         // --- Proceso de Ventas (Punto de Venta) y Gestión de Pedidos ---
         Route::post('/sales', [SaleController::class, 'store']);
@@ -121,6 +122,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // RUTAS DEL CLIENTE
     Route::post('/create/pick-up/order', [PickUpController::class, 'store']);
-    Route::get('/report/restock-projection', [ReportController::class, 'restockProjection']);
+
 
 });
